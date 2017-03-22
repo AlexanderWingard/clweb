@@ -9,6 +9,7 @@
   (-> ws-event
       (.-data)
       (reader/read-string)
+      (t/greeting)
       (println)))
 (aset ws "onmessage" handle)
 (aset ws "onopen" (fn [] (.send ws "hello")))
