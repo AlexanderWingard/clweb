@@ -11,6 +11,9 @@
   :main ^:skip-aot clweb.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}}
+  :figwheel {
+             :ring-handler clweb.core/ring-handler
+             }
   :cljsbuild {
               :builds [{:id "dev"
                         :source-paths ["src/"]
