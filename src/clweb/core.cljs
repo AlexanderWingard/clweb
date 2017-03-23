@@ -1,6 +1,7 @@
 (ns clweb.core
   (:require [cljs.reader :as reader]
-            [clweb.types :as t]))
+            [clweb.types :as t]
+            [cljsjs.d3]))
 (reader/register-tag-parser! "clweb.types.Greeting" t/map->Greeting)
 
 (defonce state (atom {:list []}))
@@ -15,6 +16,10 @@
     (swap! state update-in [:list] #(conj % greet))))
 (aset ws "onmessage" handle)
 (aset ws "onopen" (fn [] (.send ws (pr-str (t/Greeting. "I'm here")))))
+
+(.. js/d3
+    (select "body")
+    (text (str @state)))
 
 (defn figwheel-reload []
   (println @state))

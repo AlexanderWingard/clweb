@@ -5,6 +5,7 @@
                  [compojure "1.5.0"]
                  [ring/ring-jetty-adapter "1.4.0"]
                  [http-kit "2.1.19"]
+                 [cljsjs/d3 "4.3.0-4"]
                  ]
   :plugins [[lein-figwheel "0.5.9"]
             [lein-cljsbuild "1.1.3"]]
