@@ -17,7 +17,9 @@
   :cljsbuild {
               :builds [{:id "dev"
                         :source-paths ["src/"]
-                        :figwheel true
+                        :figwheel {
+                                   :on-jsload clweb.core/figwheel-reload
+                                   }
                         :compiler {:main clweb.core
                                    :asset-path "js/out"
                                    :output-to "resources/public/js/script.js"
