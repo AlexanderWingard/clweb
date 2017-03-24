@@ -7,7 +7,12 @@
 (defonce state (atom {:list []}))
 
 (enable-console-print!)
-(def ws (js/WebSocket. "ws://localhost:3449/ws"))
+(def ws-uri
+  (let [location (-> js/window .-location)
+        host (-> location .-host)
+        protocol (-> location .-protocol (case "http:" "ws:" "https:" "wss:"))]
+    (str protocol "//" host "/ws")))
+(def ws (js/WebSocket. ws-uri))
 (defn handle [ws-event]
   (let [greet (-> ws-event
                   (.-data)
