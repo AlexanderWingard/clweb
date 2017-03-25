@@ -14,6 +14,7 @@
   :profiles {:uberjar {:aot :all}}
   :figwheel {
              :ring-handler clweb.core/ring-handler
+             :css-dirs ["resources/public/css"]
              }
   :cljsbuild {
               :builds [{:id "dev"
