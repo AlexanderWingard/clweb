@@ -3,7 +3,8 @@
         [ring.util.response :only [resource-response]]
         [compojure.route :only [resources files not-found]]
         [compojure.handler :only [site]]
-        [compojure.core :only [defroutes GET POST DELETE ANY context]])
+        [compojure.core :only [defroutes GET POST DELETE ANY context]]
+        )
   (:require [clweb.types])
   (:import [clweb.types Greeting])
   (:gen-class))

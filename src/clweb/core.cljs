@@ -1,7 +1,9 @@
 (ns clweb.core
   (:require [cljs.reader :as reader]
             [clweb.types :as t]
-            [cljsjs.d3]))
+            [clojure.string :as str]
+            [cljsjs.d3]
+            ))
 (reader/register-tag-parser! "clweb.types.Greeting" t/map->Greeting)
 
 (defonce state (atom {:list []}))
@@ -21,6 +23,7 @@
     (swap! state update-in [:list] #(conj % greet))))
 (aset ws "onmessage" handle)
 (aset ws "onopen" (fn [] (.send ws (pr-str (t/Greeting. "I'm here")))))
+(aset js/window "onhashchange" (fn [] (println (apply hash-map (str/split (subs (.-hash (.-location js/window)) 1) #"/")))))
 
 (.. js/d3
     (select "body")
