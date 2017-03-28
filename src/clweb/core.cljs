@@ -3,6 +3,7 @@
             [clweb.types :as t]
             [clojure.string :as str]
             [cljsjs.d3]
+            [cljsjs.semantic-ui]
             ))
 (reader/register-tag-parser! "clweb.types.Greeting" t/map->Greeting)
 

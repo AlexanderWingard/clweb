@@ -6,6 +6,8 @@
                  [ring/ring-jetty-adapter "1.4.0"]
                  [http-kit "2.1.19"]
                  [cljsjs/d3 "4.3.0-4"]
+                 [cljsjs/semantic-ui "2.2.4-0"]
+                 [ring-cljsjs "0.1.0"]
                  ]
   :plugins [[lein-figwheel "0.5.9"]
             [lein-cljsbuild "1.1.3"]]

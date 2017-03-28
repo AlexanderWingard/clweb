@@ -4,6 +4,7 @@
         [compojure.route :only [resources files not-found]]
         [compojure.handler :only [site]]
         [compojure.core :only [defroutes GET POST DELETE ANY context]]
+        [ring.middleware.cljsjs :only [wrap-cljsjs]]
         )
   (:require [clweb.types])
   (:import [clweb.types Greeting])
@@ -20,7 +21,7 @@
 (defroutes routes
   (GET "/" [] (resource-response "index.html" {:root "public"}))
   (GET "/ws" [] ws-handler)
-  (resources "/")
+  (wrap-cljsjs (resources "/"))
   (not-found "Page not found"))
 
 (def ring-handler (site #'routes))
