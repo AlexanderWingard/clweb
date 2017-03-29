@@ -8,6 +8,7 @@
                  [http-kit "2.1.19"]
                  [cljsjs/d3 "4.3.0-4"]
                  [cljsjs/semantic-ui "2.2.4-0"]
+                 [figwheel-sidecar "0.5.0-2"]
                  [ring-cljsjs "0.1.0"]
                  ]
   :plugins [[lein-figwheel "0.5.9"]
