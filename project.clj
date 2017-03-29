@@ -1,6 +1,7 @@
 (defproject clweb "0.1.0-SNAPSHOT"
   :dependencies [
                  [org.clojure/clojure "1.8.0"]
+                 [com.cemerick/piggieback "0.2.1"]
                  [org.clojure/clojurescript "1.9.229"]
                  [compojure "1.5.0"]
                  [ring/ring-jetty-adapter "1.4.0"]
@@ -13,6 +14,7 @@
             [lein-cljsbuild "1.1.3"]]
   :main ^:skip-aot clweb.core
   :target-path "target/%s"
+  :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
   :profiles {:uberjar {:aot :all}}
   :figwheel {
              :ring-handler clweb.core/ring-handler
