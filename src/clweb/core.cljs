@@ -2,7 +2,7 @@
   (:require [cljs.reader :as reader]
             [clweb.types :as t]
             [clojure.string :as str]
-            [cljsjs.d3]
+            [cljsjs.d3 :as d3]
             [cljsjs.semantic-ui]
             ))
 (reader/register-tag-parser! "clweb.types.Greeting" t/map->Greeting)
@@ -26,9 +26,21 @@
 (aset ws "onopen" (fn [] (.send ws (pr-str (t/Greeting. "I'm here")))))
 (aset js/window "onhashchange" (fn [] (println (apply hash-map (str/split (subs (.-hash (.-location js/window)) 1) #"/")))))
 
-(.. js/d3
-    (select "body")
-    (text (str @state)))
+
+(let [select (.. js/d3
+                 (select "body")
+                 (selectAll "button")
+                 (data (array "kossa")))
+      enter  (.. select
+                 (enter)
+                 (append "button"))
+      exit   (.. select
+                 (exit)
+                 (remove))
+      update (.. select
+                 (merge enter))]
+  (.. update
+      (text (fn [d] d))))
 
 (defn figwheel-reload []
   (println @state))
