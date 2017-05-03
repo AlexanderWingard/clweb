@@ -11,8 +11,10 @@
                  [figwheel-sidecar "0.5.0-2"]
                  [ring-cljsjs "0.1.0"]
                  ]
-  :plugins [[lein-figwheel "0.5.9"]
-            [lein-cljsbuild "1.1.3"]]
+  :plugins [
+            [lein-figwheel "0.5.9"]
+            [lein-cljsbuild "1.1.3"]
+            ]
   :main ^:skip-aot clweb.core
   :target-path "target/%s"
   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}

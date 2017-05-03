@@ -4,6 +4,7 @@
             [clojure.string :as str]
             [cljsjs.d3 :as d3]
             [cljsjs.semantic-ui]
+            [cljs.test]
             ))
 (reader/register-tag-parser! "clweb.types.Greeting" t/map->Greeting)
 
@@ -25,22 +26,35 @@
 (aset ws "onmessage" handle)
 (aset ws "onopen" (fn [] (.send ws (pr-str (t/Greeting. "I'm here")))))
 (aset js/window "onhashchange" (fn [] (println (apply hash-map (str/split (subs (.-hash (.-location js/window)) 1) #"/")))))
+(def in (.getElementById js/document "in"))
+(defn render [parent term]
+  (if (coll? term)
+    (let [select (.. parent
+                     (selectAll (fn []  (.-childNodes (.node parent))))
+                     (data (apply array term)))
+          enter  (.. select
+                     (enter)
+                     (append "div"))
+          exit   (.. select
+                     (exit)
+                     (remove))
+          update (.. select
+                     (merge enter)
+                     (style "margin-left" "20px"))]
+      (.each update (fn [d] (this-as t (render (.select js/d3 t) d)))))
+    (.text parent term)))
 
+(defn parse-in []
+  (let [term (try
+               (reader/read-string (.-value in))
+               (catch js/Error e '(nil)))
+        top (.select js/d3 "#out")]
+    (render top term))
+  )
+(aset in "onkeyup" parse-in)
+(parse-in)
 
-(let [select (.. js/d3
-                 (select "body")
-                 (selectAll "button")
-                 (data (array "kossa")))
-      enter  (.. select
-                 (enter)
-                 (append "button"))
-      exit   (.. select
-                 (exit)
-                 (remove))
-      update (.. select
-                 (merge enter))]
-  (.. update
-      (text (fn [d] d))))
+(defn the-truth [] true)
 
 (defn figwheel-reload []
   (println @state))
