@@ -40,8 +40,9 @@
                      (remove))
           update (.. select
                      (merge enter)
-                     (style "margin-left" "20px"))]
-      (.each update (fn [d] (this-as t (render (.select js/d3 t) d)))))
+                     (style "background-color" "rgba(1, 1, 1, 0.2)")
+                     (style "margin-left" "20px")
+                     (each (fn [d] (this-as t (render (.select js/d3 t) d)))))])
     (.text parent term)))
 
 (defn parse-in []
