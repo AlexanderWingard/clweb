@@ -1,22 +1,27 @@
 (ns clweb.core
-  (:use [org.httpkit.server]
-        [ring.util.response :only [resource-response]]
-        [compojure.route :only [resources files not-found]]
-        [compojure.handler :only [site]]
-        [compojure.core :only [defroutes GET POST DELETE ANY context]]
-        [ring.middleware.cljsjs :only [wrap-cljsjs]]
-        )
-  (:require [clweb.types])
-  (:import [clweb.types Greeting])
+  (:use
+   [compojure.core :only [defroutes GET POST DELETE ANY context]]
+   [compojure.handler :only [site]]
+   [compojure.route :only [resources files not-found]]
+   [org.httpkit.server]
+   [ring.middleware.cljsjs :only [wrap-cljsjs]]
+   [ring.util.response :only [resource-response]]
+   )
+  (:require
+   [clojure.edn :as edn])
   (:gen-class))
 
-
-(def greet (Greeting. "Hello World!"))
+(defonce clients (atom {}))
+(defn gen-uuid [] (str (java.util.UUID/randomUUID)))
 
 (defn ws-handler [req]
   (with-channel req channel
-    (on-close channel (fn [status] (println "channel closed")))
-    (on-receive channel (fn [data] (send! channel (pr-str greet))))))
+    (let [uuid (gen-uuid)]
+      (swap! clients assoc uuid {:public {:uuid uuid} :private {}})
+      (on-close channel (fn [status] (swap! clients dissoc uuid)))
+      (on-receive channel (fn [string] (let [data (edn/read-string string)]
+                                         (case (:action data)
+                                           "get-uuid" (send! channel (prn-str (merge data (get-in @clients [uuid :public])))))))))))
 
 (defroutes routes
   (GET "/" [] (resource-response "index.html" {:root "public"}))
