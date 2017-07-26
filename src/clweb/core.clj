@@ -5,26 +5,26 @@
    [compojure.route :only [resources files not-found]]
    [org.httpkit.server]
    [ring.middleware.cljsjs :only [wrap-cljsjs]]
-   [ring.util.response :only [resource-response]]
-   )
+   [ring.util.response :only [resource-response]])
   (:require
    [clojure.edn :as edn])
   (:gen-class))
 
 (defonce clients (atom {}))
-(defn gen-uuid [] (str (java.util.UUID/randomUUID)))
+(defn publish-to-all [message]
+  (doseq [channel (keys @clients)]
+    (send! channel message)))
+
+(add-watch clients :watcher
+           (fn [key atom old-state new-state]
+             (publish-to-all (prn-str {:action "server-state" :state new-state}))))
 
 (defn ws-handler [req]
   (with-channel req channel
-    (let [uuid (gen-uuid)]
-      (add-watch clients uuid
-                 (fn [key atom old-state new-state]
-                   (send! channel (prn-str {:action "server-state" :state new-state}))))
-      (swap! clients assoc uuid {:public {:uuid uuid} :private {:channel channel}})
-      (on-close channel (fn [status] (swap! clients dissoc uuid)))
-      (on-receive channel (fn [string] (let [data (edn/read-string string)]
-                                         (case (:action data)
-                                           "get-uuid" (send! channel (prn-str (merge data (get-in @clients [uuid :public])))))))))))
+    (swap! clients assoc channel {})
+    (on-close channel (fn [status] (swap! clients dissoc channel)))
+    (on-receive channel (fn [string] (let [data (edn/read-string string)]
+                                       (case (:action data)))))))
 
 (defroutes routes
   (GET "/" [] (resource-response "index.html" {:root "public"}))

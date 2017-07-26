@@ -26,10 +26,9 @@
 (defn ws-on-message [ws-event]
   (let [message (reader/read-string (.-data  ws-event))]
     (case (:action message)
-      "get-uuid" (swap! state assoc :uuid (:uuid message))
       "server-state" (reset! server-state (:state message)))))
 (defn ws-open []
-  (.send ws (pr-str {:action "get-uuid"})))
+  ())
 (defn ws-send [data]
   (.send ws (pr-str data)))
 (aset ws "onmessage" ws-on-message)
