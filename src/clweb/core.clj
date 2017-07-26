@@ -17,7 +17,10 @@
 (defn ws-handler [req]
   (with-channel req channel
     (let [uuid (gen-uuid)]
-      (swap! clients assoc uuid {:public {:uuid uuid} :private {}})
+      (add-watch clients uuid
+                 (fn [key atom old-state new-state]
+                   (send! channel (prn-str {:action "server-state" :state new-state}))))
+      (swap! clients assoc uuid {:public {:uuid uuid} :private {:channel channel}})
       (on-close channel (fn [status] (swap! clients dissoc uuid)))
       (on-receive channel (fn [string] (let [data (edn/read-string string)]
                                          (case (:action data)
