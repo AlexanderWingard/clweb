@@ -24,7 +24,8 @@
     (swap! clients assoc channel {})
     (on-close channel (fn [status] (swap! clients dissoc channel)))
     (on-receive channel (fn [string] (let [data (edn/read-string string)]
-                                       (case (:action data)))))))
+                                       (case (:action data)
+                                         "login" (swap! clients update-in [channel :logged-in] not)))))))
 
 (defroutes routes
   (GET "/" [] (resource-response "index.html" {:root "public"}))

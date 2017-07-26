@@ -10,10 +10,10 @@
    [clweb.types :as t]
    [json-html.core :refer [edn->hiccup]]
    [reagent-forms.core :refer [bind-fields]]
-   [reagent.core :as reagent]
+   [reagent.core :as reagent :refer [atom]]
    ))
 (defonce state (atom {}))
-(defonce server-state (reagent/atom {}))
+(defonce server-state (atom {}))
 (enable-console-print!)
 (register-tag-parser! "object" (fn [arg] (prn-str arg)))
 
@@ -50,26 +50,24 @@
     [:label "Password:"]
     [:div.ui.icon.input
      (input "Password" :password :user.password)
-     [:i.lock.icon]]]])
+     [:i.lock.icon]]]
+   [:button.ui.button {:on-click #(ws-send (assoc (:user @state) :action "login"))} "Login"]])
 
-(defn render-clojure [data]
+(defn render-clojure [atom]
   (prewalk-replace
    {:table.jh-type-object :table.jh-type-object.ui.celled.table}
-   (json-html.core/edn->hiccup data)))
+   (json-html.core/edn->hiccup @atom)))
 
 (defn app []
-  (let [s (reagent/atom {})
-        ]
-    (fn []
-      [:div.ui.container
-       [:div.ui.segment
-        [:div.ui.form
-         [bind-fields form-template s]
-         [:button.ui.button {:on-click #(ws-send (merge @state (assoc @s :action "login")))} "Login"]]]
-       [:h1.ui.header "Client state"]
-       (render-clojure @s)
-       [:h1.ui.header "Server state"]
-       (render-clojure @server-state)])))
+  [:div.ui.container
+   [:h1.ui.header "Charlies Bank"]
+   [:div.ui.segment
+    [:div.ui.form
+     [bind-fields form-template state]]]
+   [:h1.ui.header "Client state"]
+   (render-clojure state)
+   [:h1.ui.header "Server state"]
+   (render-clojure server-state)])
 
 (reagent/render [app] (js/document.getElementById "app"))
 
