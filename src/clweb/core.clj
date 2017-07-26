@@ -11,22 +11,24 @@
   (:gen-class))
 
 (defonce clients (atom {}))
+(def db (atom {"alex" 10 "andrej" 20}))
 (defn publish-to-all [message]
   (doseq [channel (keys @clients)]
     (send! channel message)))
 
 (add-watch clients :watcher
            (fn [key atom old-state new-state]
-             (publish-to-all (prn-str {:action "full-server-state" :state new-state}))))
+             (publish-to-all (prn-str {:action "full-server-state" :state {:clients @clients :db @db}}))))
 
 (defn handle-msg [channel string]
   (let [data (edn/read-string string)]
     (case (:action data)
-      "login" (let [newstate (swap! clients assoc-in [channel :logged-in] true)]
-                (send! channel (pr-str {:action "your-state" :state (get newstate channel)})))
-      "logout" (let [newstate (swap! clients assoc-in [channel :logged-in] false)]
-                 (send! channel (pr-str {:action "your-state" :state (get newstate channel)}))))))
-
+      "login" (if (contains? @db (:name data))
+                (let [newstate (swap! clients assoc-in [channel :logged-in] (:name data))]
+                  (send! channel (pr-str {:action "your-state" :state (get @db (:name data))})))
+                (send! channel (pr-str {:action "failed-login"})))
+      "logout" (let [newstate (swap! clients update channel dissoc :logged-in)]
+                 (send! channel (pr-str {:action "your-state" :state nil}))))))
 
 (defn ws-handler [req]
   (with-channel req channel
