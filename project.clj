@@ -16,8 +16,11 @@
                  [ring/ring-jetty-adapter "1.4.0"]
                  ]
   :plugins [
-            [lein-figwheel "0.5.9"]
+            [com.jakemccrary/lein-test-refresh "0.20.0"]
             [lein-cljsbuild "1.1.3"]
+            [lein-cloverage "1.0.9"]
+            [lein-figwheel "0.5.9"]
+            [venantius/ultra "0.5.1"]
             ]
   :main ^:skip-aot clweb.core
   :target-path "target/%s"
