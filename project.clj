@@ -4,7 +4,7 @@
                  [cljsjs/semantic-ui "2.2.4-0"]
                  [com.cemerick/piggieback "0.2.1"]
                  [compojure "1.5.0"]
-                 [figwheel-sidecar "0.5.0-2"]
+                 [figwheel-sidecar "0.5.11"]
                  [http-kit "2.1.19"]
                  [json-html "0.4.4"]
                  [org.clojure/clojure "1.8.0"]
@@ -19,7 +19,7 @@
             [com.jakemccrary/lein-test-refresh "0.20.0"]
             [lein-cljsbuild "1.1.3"]
             [lein-cloverage "1.0.9"]
-            [lein-figwheel "0.5.9"]
+            [lein-figwheel "0.5.11"]
             [venantius/ultra "0.5.1"]
             ]
   :main ^:skip-aot clweb.core
@@ -27,6 +27,7 @@
   :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
   :profiles {:uberjar {:aot :all}}
   :figwheel {
+             :reload-clj-files true
              :ring-handler clweb.core/ring-handler
              :css-dirs ["resources/public/css"]
              }
