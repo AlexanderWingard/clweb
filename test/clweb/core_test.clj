@@ -43,3 +43,13 @@
     (component-contains top-menu :div.ui.menu))
   (testing "hello world"
     (component-contains hello-world {:field :text, :id :hello})))
+
+(deftest clear-errors-test
+  (testing "Clearing of errors in form state"
+    (is (= {:id {:a { :value "val"}
+                 :b {:value "val"}}}
+           (clear-errors {:id
+                           {:a { :value "val" :error "err" }
+                            :b { :value "val" :error "err b" }}}
+                          :id)))))
+

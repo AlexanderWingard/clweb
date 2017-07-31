@@ -4,6 +4,7 @@
    [cljs.test]
    [cljsjs.d3 :as d3]
    [cljsjs.semantic-ui]
+   [clweb.components :as component]
    [clojure.string :as str]
    [clojure.walk :refer [prewalk-replace]]
    [clojure.reader :refer [register-tag-parser!]]
@@ -93,6 +94,7 @@
 (defn app []
   [:div.ui.container
    [:h1.ui.header "Charlies Bank"]
+   [component/registration :reg-form client-state]
    [:div.ui.menu
     [:div.right.menu
      (if (some? @server-state)
