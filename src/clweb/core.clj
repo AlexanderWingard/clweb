@@ -8,7 +8,7 @@
    [ring.util.response :only [resource-response]])
   (:require
    [clojure.edn :as edn]
-   [clweb.io :refer :all]
+   [clweb.io :refer [ws-send]]
    [clweb.components :as component])
   (:gen-class))
 

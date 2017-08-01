@@ -1,9 +1,9 @@
 (ns clweb.components
-  #?(:clj (require [clweb.io :refer :all])
-     :cljs
-     (:require [clweb.io :refer [ws-send]]
-               [reagent.core :refer [atom]]
-               [reagent-forms.core :refer [bind-fields]])))
+  (:require
+   [clweb.io :refer [ws-send]]
+   #?@(:cljs
+       [[reagent.core :refer [atom]]
+        [reagent-forms.core :refer [bind-fields]]])))
 
 #?(:clj (defn bind-fields [form doc]
           [:binding @doc form]))
