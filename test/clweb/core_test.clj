@@ -3,6 +3,7 @@
    [clojure.test :refer :all]
    [clweb.components :refer :all]
    [clweb.core :refer :all]
+   [clweb.io :refer :all]
    ))
 
 (deftest login-test
@@ -10,13 +11,13 @@
     (let [messages (atom [])]
       (with-redefs [ws-send #(swap! messages conj %2)
                     db (atom {"testuser" 20})]
-        (handle-msg nil (prn-str {:action "login" :name "unknown"}))
+        (handle-msg nil  {:action "login" :name "unknown"})
         (is (= {:action "failed-login"}
                (last @messages)))
-        (handle-msg nil (prn-str {:action "login" :name "testuser"}))
+        (handle-msg nil {:action "login" :name "testuser"})
         (is (= {:action "your-state" :state 20}
                (last @messages)))
-        (handle-msg nil (prn-str {:action "logout"}))
+        (handle-msg nil {:action "logout"})
         (is (= {:action "your-state", :state nil}
                (last @messages)) "logout works")))))
 
@@ -40,9 +41,7 @@
 
 (deftest component-test
   (testing "the menu"
-    (component-contains top-menu :div.ui.menu))
-  (testing "hello world"
-    (component-contains hello-world {:field :text, :id :hello})))
+    (component-contains top-menu :div.ui.menu)))
 
 (deftest clear-errors-test
   (testing "Clearing of errors in form state"
@@ -53,3 +52,15 @@
                             :b { :value "val" :error "err b" }}}
                           :id)))))
 
+(defn click-button [form]
+  ((:on-click (first (filter #(and (map? %1) ( contains? %1 :on-click ))
+                             (flatten form))))))
+
+(deftest registration-test
+  (testing "registering"
+    (let [state (atom {registration-key {:password-1 {:value "abc"}}})
+          form (render (registration nil state))
+          request (click-button form)
+          response (handle-msg nil request)]
+      (is (string? (get-in response [registration-key :password-2 :error])))
+      (is (string? (get-in response [registration-key :password-1 :error]))))))

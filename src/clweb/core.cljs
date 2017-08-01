@@ -12,6 +12,7 @@
    [json-html.core :refer [edn->hiccup]]
    [reagent-forms.core :refer [bind-fields]]
    [reagent.core :as reagent :refer [atom]]
+   [clweb.io :refer [ws-send]]
    ))
 (defonce client-state (atom {}))
 (defonce server-state (atom nil))
@@ -24,20 +25,21 @@
         host (-> location .-host)
         protocol (-> location .-protocol (case "http:" "ws:" "https:" "wss:"))]
     (str protocol "//" host "/ws")))
-(defonce ws (js/WebSocket. ws-uri))
+(defonce channel (js/WebSocket. ws-uri))
+
+(defn ws-handle-message [message]
+  (case (:action message)
+    "full-server-state" (reset! full-server-state (:state message))
+    "your-state" (do (reset! server-state (:state message))
+                     (swap! client-state dissoc :login-failed))
+    "failed-login" (swap! client-state assoc :login-failed true)
+    "register" (swap! client-state merge-with (dissoc message :action))))
 (defn ws-on-message [ws-event]
-  (let [message (reader/read-string (.-data  ws-event))]
-    (case (:action message)
-      "full-server-state" (reset! full-server-state (:state message))
-      "your-state" (do (reset! server-state (:state message))
-                       (swap! client-state dissoc :login-failed))
-      "failed-login" (swap! client-state assoc :login-failed true))))
+  (ws-handle-message (reader/read-string (.-data  ws-event))))
 
 (defn ws-open [] ())
-(defn ws-send [data]
-  (.send ws (pr-str data)))
-(aset ws "onmessage" ws-on-message)
-(aset ws "onopen" ws-open)
+(aset channel "onmessage" ws-on-message)
+(aset channel "onopen" ws-open)
 
 (aset js/window "onhashchange" (fn [] (println (apply hash-map (str/split (subs (.-hash (.-location js/window)) 1) #"/")))))
 
@@ -47,7 +49,7 @@
 (defn login-button-component []
   [:div.inline.field
    [:button.ui.button
-    {:on-click #(ws-send (assoc (:user @client-state) :action "login"))}
+    {:on-click #(ws-send channel (assoc (:user @client-state) :action "login"))}
     "Login"]
    (if (contains? @client-state :login-failed)
      [:div.ui.left.pointing.red.label "Login failed"])])
@@ -80,7 +82,7 @@
     [bind-fields form-template client-state]]])
 
 (defn logout []
-  [:button.ui.button {:on-click #(ws-send {:action "logout"})} "Logout"])
+  [:button.ui.button {:on-click #(ws-send channel {:action "logout"})} "Logout"])
 
 (defn state-debug-component []
   [:div
@@ -91,10 +93,11 @@
    [:h1.ui.header "Full Server state"]
    (render-clojure full-server-state)])
 
+
 (defn app []
   [:div.ui.container
    [:h1.ui.header "Charlies Bank"]
-   [component/registration :reg-form client-state]
+   [component/registration channel client-state]
    [:div.ui.menu
     [:div.right.menu
      (if (some? @server-state)
