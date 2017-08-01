@@ -48,3 +48,9 @@
      (field :password "Password" state [registration-key :password-1])
      (field :password "Repeat" state [registration-key :password-2])]
     [:button.ui.button {:on-click #(ws-send channel (assoc @state :action "register"))} "Register"]]])
+
+(defn assign-error [state path error]
+  (assoc-in state (conj path :error) error))
+
+(defmulti be-action (fn [channel message] (:action message)))
+(defmulti fe-action (fn [channel message state] (:action message)))

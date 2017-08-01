@@ -4,6 +4,7 @@
    [clweb.components :refer :all]
    [clweb.core :refer :all]
    [clweb.io :refer :all]
+   [clweb.components.login-form :as login-form]
    ))
 
 (deftest login-test
@@ -64,3 +65,14 @@
           response (handle-msg nil request)]
       (is (string? (get-in response [registration-key :password-2 :error])))
       (is (string? (get-in response [registration-key :password-1 :error]))))))
+
+
+(deftest login-test
+  (testing "logging in"
+    (let [client-state (atom {login-form/state-key {:username {:value "alex"}} :other-garbage "garb"})
+          form (render (login-form/form nil client-state))
+          request (click-button form)
+          response (be-action nil request)]
+      (fe-action nil response client-state)
+      (is (some #(= :div.ui.pointing.red.basic.label %)
+                (flatten (render (login-form/form nil client-state))))))))

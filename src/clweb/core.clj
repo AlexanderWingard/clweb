@@ -25,16 +25,11 @@
 
 (defn handle-msg [channel data]
   (case (:action data)
-
-    "login" (if (contains? @db (:name data))
-              (let [newstate (swap! clients assoc-in [channel :logged-in] (:name data))]
-                (ws-send channel {:action "your-state" :state (get @db (:name data))}))
-              (ws-send channel {:action "failed-login"}))
-
     "logout" (let [newstate (swap! clients update channel dissoc :logged-in)]
                (ws-send channel {:action "your-state" :state nil}))
 
-    "register" (ws-send channel (component/registration-validate data))))
+    "register" (ws-send channel (component/registration-validate data))
+    (component/be-action channel data)))
 
 (defn on-msg [channel string]
   (handle-msg channel (edn/read-string string)))

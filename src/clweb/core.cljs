@@ -13,6 +13,8 @@
    [reagent-forms.core :refer [bind-fields]]
    [reagent.core :as reagent :refer [atom]]
    [clweb.io :refer [ws-send]]
+   [clweb.components :refer [fe-action]]
+   [clweb.components.login-form :as login-form]
    ))
 (defonce client-state (atom {}))
 (defonce server-state (atom nil))
@@ -33,7 +35,8 @@
     "your-state" (do (reset! server-state (:state message))
                      (swap! client-state dissoc :login-failed))
     "failed-login" (swap! client-state assoc :login-failed true)
-    "register" (swap! client-state merge-with (dissoc message :action))))
+    "register" (swap! client-state merge-with (dissoc message :action))
+    (fe-action channel message client-state)))
 (defn ws-on-message [ws-event]
   (ws-handle-message (reader/read-string (.-data  ws-event))))
 
@@ -93,18 +96,11 @@
    [:h1.ui.header "Full Server state"]
    (render-clojure full-server-state)])
 
-
 (defn app []
   [:div.ui.container
    [:h1.ui.header "Charlies Bank"]
+   [login-form/form channel client-state]
    [component/registration channel client-state]
-   [:div.ui.menu
-    [:div.right.menu
-     (if (some? @server-state)
-       [:div.ui.item
-        [logout]])]]
-   (if (not (some? @server-state))
-     [login])
    [state-debug-component]])
 
 (reagent/render [app] (js/document.getElementById "app"))
