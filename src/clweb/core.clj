@@ -7,6 +7,8 @@
    [ring.middleware.cljsjs :only [wrap-cljsjs]]
    [ring.util.response :only [resource-response]])
   (:require
+   [clweb.components.login-form]
+   [clweb.components.registration-form]
    [clojure.edn :as edn]
    [clweb.io :refer [ws-send]]
    [clweb.components :as component])
@@ -28,7 +30,6 @@
     "logout" (let [newstate (swap! clients update channel dissoc :logged-in)]
                (ws-send channel {:action "your-state" :state nil}))
 
-    "register" (ws-send channel (component/registration-validate data))
     (component/be-action channel data)))
 
 (defn on-msg [channel string]

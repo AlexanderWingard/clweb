@@ -40,10 +40,6 @@
   (is (some #(= elem %)
             (flatten (render (component))))))
 
-(deftest component-test
-  (testing "the menu"
-    (component-contains top-menu :div.ui.menu)))
-
 (deftest clear-errors-test
   (testing "Clearing of errors in form state"
     (is (= {:id {:a { :value "val"}
@@ -56,15 +52,6 @@
 (defn click-button [form]
   ((:on-click (first (filter #(and (map? %1) ( contains? %1 :on-click ))
                              (flatten form))))))
-
-(deftest registration-test
-  (testing "registering"
-    (let [state (atom {registration-key {:password-1 {:value "abc"}}})
-          form (render (registration nil state))
-          request (click-button form)
-          response (handle-msg nil request)]
-      (is (string? (get-in response [registration-key :password-2 :error])))
-      (is (string? (get-in response [registration-key :password-1 :error]))))))
 
 
 (deftest login-test
