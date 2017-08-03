@@ -35,7 +35,6 @@
     "full-server-state" (reset! full-server-state (:state message))
     "your-state" (do (reset! server-state (:state message))
                      (swap! client-state dissoc :login-failed))
-    "failed-login" (swap! client-state assoc :login-failed true)
     (fe-action channel message client-state)))
 (defn ws-on-message [ws-event]
   (ws-handle-message (reader/read-string (.-data  ws-event))))
@@ -54,8 +53,7 @@
    [:button.ui.button
     {:on-click #(ws-send channel (assoc (:user @client-state) :action "login"))}
     "Login"]
-   (if (contains? @client-state :login-failed)
-     [:div.ui.left.pointing.red.label "Login failed"])])
+   ])
 
 (def form-template
   [:div

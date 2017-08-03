@@ -7,21 +7,6 @@
    [clweb.components.login-form :as login-form]
    ))
 
-(deftest login-test
-  (testing "a login session"
-    (let [messages (atom [])]
-      (with-redefs [ws-send #(swap! messages conj %2)
-                    db (atom {"testuser" 20})]
-        (handle-msg nil  {:action "login" :name "unknown"})
-        (is (= {:action "failed-login"}
-               (last @messages)))
-        (handle-msg nil {:action "login" :name "testuser"})
-        (is (= {:action "your-state" :state 20}
-               (last @messages)))
-        (handle-msg nil {:action "logout"})
-        (is (= {:action "your-state", :state nil}
-               (last @messages)) "logout works")))))
-
 (defn render [tree]
   (cond
     (fn? tree)
@@ -56,10 +41,17 @@
 
 (deftest login-test
   (testing "logging in"
-    (let [client-state (atom {login-form/state-key {:username {:value "alex"}} :other-garbage "garb"})
-          form (render (login-form/form nil client-state))
+    (let [db (atom {"alex" 10})
+          client-state (atom {login-form/state-key {:username {:value "ale"}} :other-garbage "garb"})
           request (login-form/on-click nil client-state)
-          response (be-action nil request)]
+          response (be-action nil request db)]
       (fe-action nil response client-state)
       (is (some #(= :div.ui.pointing.red.basic.label %)
                 (flatten (render (login-form/form nil client-state))))))))
+
+(deftest ws-send-test
+  (testing "Checking sent msgs"
+    (let [msgs (atom [])]
+      (ws-send msgs "test1")
+      (ws-send msgs "test2")
+      (is (= ["test1" "test2"] @msgs)))))

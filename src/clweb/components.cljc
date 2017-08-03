@@ -23,5 +23,5 @@
 (defn assign-error [state path error]
   (assoc-in state (conj path :error) error))
 
-(defmulti be-action (fn [channel message] (:action message)))
+(defmulti be-action (fn [channel message db] (:action message)))
 (defmulti fe-action (fn [channel message state] (:action message)))

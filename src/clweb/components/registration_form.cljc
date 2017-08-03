@@ -26,7 +26,7 @@
      (field :password "Repeat" state [state-key :password-2])]
     [:button.ui.button {:on-click #(on-click channel state)} "Register"]]])
 
-(defmethod be-action action [channel message]
+(defmethod be-action action [channel message db]
   (ws-send channel (validate channel message)))
 
 (defmethod fe-action action [channel message state]

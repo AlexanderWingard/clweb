@@ -26,11 +26,7 @@
              (publish-to-all {:action "full-server-state" :state {:clients @clients :db @db}})))
 
 (defn handle-msg [channel data]
-  (case (:action data)
-    "logout" (let [newstate (swap! clients update channel dissoc :logged-in)]
-               (ws-send channel {:action "your-state" :state nil}))
-
-    (component/be-action channel data)))
+  (component/be-action channel data db))
 
 (defn on-msg [channel string]
   (handle-msg channel (edn/read-string string)))
