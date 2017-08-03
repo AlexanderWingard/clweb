@@ -71,7 +71,7 @@
   (testing "logging in"
     (let [client-state (atom {login-form/state-key {:username {:value "alex"}} :other-garbage "garb"})
           form (render (login-form/form nil client-state))
-          request (click-button form)
+          request (login-form/on-click nil client-state)
           response (be-action nil request)]
       (fe-action nil response client-state)
       (is (some #(= :div.ui.pointing.red.basic.label %)
