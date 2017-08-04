@@ -9,7 +9,8 @@
   (:require
    [clweb.components.login-form]
    [clweb.components.registration-form]
-   [clojure.edn :as edn]
+   [clweb.components.state-debug :as state-debug]
+   [clojure.edn :refer [read-string]]
    [clweb.io :refer [ws-send]]
    [clweb.components :as component])
   (:gen-class))
@@ -23,13 +24,13 @@
 
 (add-watch clients :watcher
            (fn [key atom old-state new-state]
-             (publish-to-all {:action "full-server-state" :state {:clients @clients :db @db}})))
+             (publish-to-all {:action state-debug/action :state {:clients @clients :db @db}})))
 
 (defn handle-msg [channel data]
   (component/be-action channel data db))
 
 (defn on-msg [channel string]
-  (handle-msg channel (edn/read-string string)))
+  (handle-msg channel (read-string string)))
 
 (defn ws-handler [req]
   (with-channel req channel
