@@ -7,6 +7,7 @@
                                       clear-errors]]))
 
 (def action "login")
+(def login-successful "login-successful")
 (def state-key :login)
 (def username-path [state-key :username])
 (def password-path [state-key :password])

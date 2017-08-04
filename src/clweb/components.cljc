@@ -20,6 +20,15 @@
    (fn [state]
      (into {} (map (fn [[k v]] [k (dissoc v :error)]) state)))))
 
+(defn any-errors? [state id]
+  (some (fn [[k v]] (contains? v :error)) (get state id)))
+
+(defn assoc-val [m ks v]
+  (assoc-in m (conj ks :value) v))
+
+(defn get-val [m ks]
+  (get-in m (conj ks :value)))
+
 (defn assign-error [state path error]
   (assoc-in state (conj path :error) error))
 
