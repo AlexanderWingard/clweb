@@ -6,6 +6,9 @@
             [compojure.core :refer [defroutes GET]]
             [compojure.handler :refer [site]]
             [compojure.route :refer [not-found resources]]
+            [clweb.components.login-form]
+            [clweb.components.registration-form]
+            [clweb.components.state-debug]
             [org.httpkit.server
              :refer
              [on-close on-receive run-server with-channel]]
