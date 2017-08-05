@@ -26,3 +26,6 @@
 
 (defmethod fe-action action [channel message state]
   (reset! full-server-state (:state message)))
+
+(defn create-message [state]
+  {:action action :state state})

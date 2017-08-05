@@ -45,7 +45,7 @@
     [:button.ui.button {:on-click #(on-click channel state)
                         :class (when (any-errors? @state state-key) "red")} "Register"]]])
 
-(defmethod be-action action [channel message db]
+(defmethod be-action action [channel message state]
   (let [checked-state (validate channel message)]
     (if (any-errors? checked-state state-key)
       (ws-send channel checked-state)

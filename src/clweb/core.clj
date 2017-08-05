@@ -1,50 +1,32 @@
 (ns clweb.core
-  (:use
-   [compojure.core :only [defroutes GET POST DELETE ANY context]]
-   [compojure.handler :only [site]]
-   [compojure.route :only [resources files not-found]]
-   [org.httpkit.server]
-   [ring.middleware.cljsjs :only [wrap-cljsjs]]
-   [ring.util.response :only [resource-response]])
-  (:require
-   [clweb.components.login-form]
-   [clweb.components.registration-form]
-   [clweb.components.state-debug :as state-debug]
-   [clojure.edn :refer [read-string]]
-   [clweb.io :refer [ws-send]]
-   [clweb.components :as component])
-  (:gen-class))
+  (:gen-class)
+  (:require [clojure.edn :as edn]
+            [clweb.components :as component]
+            [clweb.state :as state]
+            [compojure.core :refer [defroutes GET]]
+            [compojure.handler :refer [site]]
+            [compojure.route :refer [not-found resources]]
+            [org.httpkit.server
+             :refer
+             [on-close on-receive run-server with-channel]]
+            [ring.middleware.cljsjs :refer [wrap-cljsjs]]
+            [ring.util.response :refer [resource-response]]))
 
-(defonce clients (atom {}))
-(def db (atom {"alex" 10 "andrej" 20}))
-
-(defn publish-to-all [message]
-  (doseq [channel (keys @clients)]
-    (ws-send channel message)))
-
-(add-watch clients :watcher
-           (fn [key atom old-state new-state]
-             (publish-to-all {:action state-debug/action :state {:clients @clients :db @db}})))
-
-(defn handle-msg [channel data]
-  (component/be-action channel data db))
-
-(defn on-msg [channel string]
-  (handle-msg channel (read-string string)))
+(defonce state (state/new))
 
 (defn ws-handler [req]
   (with-channel req channel
-    (swap! clients assoc channel {})
-    (on-close channel (fn [status] (swap! clients dissoc channel)))
-    (on-receive channel (fn [message] (#'on-msg channel message)))))
+    (state/assoc-channel state channel)
+    (on-close channel (fn [status] (state/dissoc-channel state channel)))
+    (on-receive channel (fn [string] (component/be-action channel (edn/read-string string) state)))))
 
-(defroutes routes
+(defroutes my-routes
   (GET "/" [] (resource-response "index.html" {:root "public"}))
   (GET "/ws" [] ws-handler)
   (wrap-cljsjs (resources "/"))
   (not-found "Page not found"))
 
-(def ring-handler (site #'routes))
+(def ring-handler (site #'my-routes))
 
 (defn -main
   [& args]

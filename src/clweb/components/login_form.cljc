@@ -35,8 +35,8 @@
       (when login-failed
         [:div.ui.left.pointing.red.basic.label "Login failed"])]]))
 
-(defmethod be-action action [channel message db]
-  (ws-send channel (validate message db)))
+(defmethod be-action action [channel message state]
+  (ws-send channel (validate message state)))
 
 (defmethod fe-action action [channel message state]
   (swap! state assoc state-key (state-key message)))
