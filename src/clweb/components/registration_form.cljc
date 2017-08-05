@@ -9,6 +9,7 @@
                                       clear-errors]]))
 
 (def action "register")
+(def registration-successful-msg "registration-successful-msg")
 (def state-key :registration-form)
 (def username-path [state-key :username])
 (def password-1-path [state-key :password-1])
@@ -45,7 +46,13 @@
                         :class (when (any-errors? @state state-key) "red")} "Register"]]])
 
 (defmethod be-action action [channel message db]
-  (ws-send channel (validate channel message)))
+  (let [checked-state (validate channel message)]
+    (if (any-errors? checked-state state-key)
+      (ws-send channel checked-state)
+      (ws-send channel {:action registration-successful-msg}))))
 
 (defmethod fe-action action [channel message state]
   (swap! state assoc state-key (state-key message)))
+
+(defmethod fe-action registration-successful-msg [channel message state]
+  (swap! state dissoc state-key))

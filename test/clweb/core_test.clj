@@ -61,7 +61,7 @@
           request (registration-form/on-click nil client-state)
           response (be-action nil request (atom {}))]
       (fe-action nil response client-state)
-      (is (not (any-errors? @client-state registration-form/state-key))))))
+      (is (not (contains? @client-state registration-form/state-key))))))
 
 (deftest ws-send-test
   (testing "Checking sent msgs"
