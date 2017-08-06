@@ -12,7 +12,8 @@
   (swap! state update-in [:sessions] dissoc channel))
 
 (defn register-user [state username password]
-  (swap! state assoc-in [:db username :password] password))
+  (swap! state assoc-in [:db username :password] password)
+  state)
 
 (defn user-exists? [state username]
   (not (nil? (get-in @state [:db username]))))

@@ -23,10 +23,6 @@
     (vector? tree)
     (mapv render tree)))
 
-(defn component-contains [component elem]
-  (is (some #(= elem %)
-            (flatten (render (component))))))
-
 (deftest error-handling-test
   (testing "Clearing of errors in form state"
     (is (= {:id {:a {:value "val"}
@@ -49,11 +45,13 @@
                          (assoc-val login-form/username-path "alexander")
                          (assoc-val login-form/password-path "password")
                          (atom))
-            be-state (state/new)
-            _ (state/register-user be-state "alexander" "password")
+            be-state (->  (state/new)
+                          (state/register-user "alexander" "password"))
             request (login-form/on-click nil fe-state)
             response (be-action nil request be-state)]
-        (is (= login-form/login-successful (:action response)))))))
+        (fe-action nil response fe-state)
+        (is (= login-form/login-successful (:action response)))
+        (is (= {} @fe-state) "Login form is cleared")))))
 
 (deftest registration-test
   (testing "successful registration"
