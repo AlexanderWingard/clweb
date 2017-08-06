@@ -4,8 +4,10 @@
    [clweb.components :refer :all]
    [clweb.core :refer :all]
    [clweb.io :refer :all]
+   [clweb.state :as state]
    [clweb.components.registration-form :as registration-form]
-   [clweb.components.login-form :as login-form]))
+   [clweb.components.login-form :as login-form]
+   [clweb.state :as state]))
 
 (defn render [tree]
   (cond
@@ -42,14 +44,16 @@
       (is (not (any-errors? (clear-errors state :id) :id)))))
 
   (deftest login-test
-    (testing "logging in"
-      (let [db (atom {"alex" 10})
-            client-state (atom {login-form/state-key {:username {:value "ale"}} :other-garbage "garb"})
-            request (login-form/on-click nil client-state)
-            response (be-action nil request db)]
-        (fe-action nil response client-state)
-        (is (some #(= :div.ui.pointing.red.basic.label %)
-                  (flatten (render (login-form/form nil client-state)))))))))
+    (testing "new logintest"
+      (let [fe-state (-> {}
+                         (assoc-val login-form/username-path "alexander")
+                         (assoc-val login-form/password-path "password")
+                         (atom))
+            be-state (state/new)
+            _ (state/register-user be-state "alexander" "password")
+            request (login-form/on-click nil fe-state)
+            response (be-action nil request be-state)]
+        (is (= login-form/login-successful (:action response)))))))
 
 (deftest registration-test
   (testing "successful registration"

@@ -1,10 +1,15 @@
 (ns clweb.components.login-form
-  (:require [clweb.io :refer [ws-send]]
-            [clweb.components :refer [fe-action
-                                      be-action
-                                      assign-error
-                                      field
-                                      clear-errors]]))
+  (:require [clweb.components
+             :refer
+             [any-errors?
+              assign-error
+              be-action
+              clear-errors
+              fe-action
+              field
+              get-val]]
+            [clweb.io :refer [ws-send]]
+            [clweb.state :as state]))
 
 (def action "login")
 (def login-successful "login-successful")
@@ -13,14 +18,20 @@
 (def password-path [state-key :password])
 (def login-failed-path [state-key :login-failed])
 
-(defn validate [state db]
-  (-> state
+(defn validate [msg state]
+  (-> msg
       (clear-errors state-key)
-      ((fn [state] (if (nil? (get @db (get-in state (conj username-path :value))))
-                     (-> state
+      ((fn [msg] (if (not (state/user-exists? state (get-val msg username-path)))
+                     (-> msg
                          (assign-error login-failed-path true)
                          (assign-error username-path "User not found"))
-                     state)))))
+                     (if-not (state/correct-password? state
+                                                  (get-val msg username-path)
+                                                  (get-val msg password-path))
+                       (-> msg
+                           (assign-error login-failed-path true)
+                           (assign-error password-path "Wrong password"))
+                       msg))))))
 
 (defn on-click [channel state]
   (ws-send channel (assoc @state :action action)))
@@ -36,7 +47,15 @@
         [:div.ui.left.pointing.red.basic.label "Login failed"])]]))
 
 (defmethod be-action action [channel message state]
-  (ws-send channel (validate message state)))
+  (let [checked-msg (validate message state)]
+    (if (any-errors? checked-msg state-key)
+      (ws-send channel checked-msg)
+      (do
+        (state/set-logged-in state channel (get-val message username-path))
+        (ws-send channel {:action login-successful :user (get-val message username-path)})))))
 
 (defmethod fe-action action [channel message state]
   (swap! state assoc state-key (state-key message)))
+
+(defmethod fe-action login-successful [channel msg state]
+  (swap! state dissoc state-key))

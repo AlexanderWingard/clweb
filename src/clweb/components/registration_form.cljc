@@ -1,12 +1,15 @@
 (ns clweb.components.registration-form
-  (:require [clweb.io :refer [ws-send]]
-            [clweb.components :refer [fe-action
-                                      be-action
-                                      assign-error
-                                      any-errors?
-                                      get-val
-                                      field
-                                      clear-errors]]))
+  (:require [clweb.components
+             :refer
+             [any-errors?
+              assign-error
+              be-action
+              clear-errors
+              fe-action
+              field
+              get-val]]
+            [clweb.io :refer [ws-send]]
+            [clweb.state :refer [register-user set-logged-in]]))
 
 (def action "register")
 (def registration-successful-msg "registration-successful-msg")
@@ -49,10 +52,16 @@
   (let [checked-state (validate channel message)]
     (if (any-errors? checked-state state-key)
       (ws-send channel checked-state)
-      (ws-send channel {:action registration-successful-msg}))))
+      (do
+        (register-user state
+                       (get-val message username-path)
+                       (get-val message password-1-path))
+        (set-logged-in state channel (get-val message username-path))
+        (ws-send channel {:action registration-successful-msg :user (get-val message username-path)})))))
 
 (defmethod fe-action action [channel message state]
   (swap! state assoc state-key (state-key message)))
 
 (defmethod fe-action registration-successful-msg [channel message state]
+  (swap! state assoc :logged-in (:user message))
   (swap! state dissoc state-key))

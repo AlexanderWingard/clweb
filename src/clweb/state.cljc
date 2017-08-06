@@ -11,6 +11,18 @@
 (defn dissoc-channel [state channel]
   (swap! state update-in [:sessions] dissoc channel))
 
+(defn register-user [state username password]
+  (swap! state assoc-in [:db username :password] password))
+
+(defn user-exists? [state username]
+  (not (nil? (get-in @state [:db username]))))
+
+(defn correct-password? [state username password]
+  (= password (get-in @state [:db username :password])))
+
+(defn set-logged-in [state channel username]
+  (swap! state assoc-in [:sessions channel :logged-in] username))
+
 (defn new []
   (let [state (atom
                {:sessions {}
