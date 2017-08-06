@@ -24,6 +24,12 @@
 (defn set-logged-in [state channel username]
   (swap! state assoc-in [:sessions channel :logged-in] username))
 
+(defn logged-in-user [state channel]
+  (get-in @state [:sessions channel :logged-in]))
+
+(defn logout [state channel]
+  (swap! state update-in [:sessions channel] dissoc :logged-in))
+
 (defn new []
   (let [state (atom
                {:sessions {}

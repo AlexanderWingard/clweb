@@ -47,23 +47,29 @@
                          (atom))
             be-state (->  (state/new)
                           (state/register-user "alexander" "password"))
-            request (login-form/on-click nil fe-state)
+            request (login-form/on-click-login nil fe-state)
             response (be-action nil request be-state)]
         (fe-action nil response fe-state)
         (is (= login-form/login-successful (:action response)))
-        (is (= {} @fe-state) "Login form is cleared")))))
+        (is (nil? (login-form/state-key @fe-state)) "Login form is cleared")
+        (is (= "alexander" (state/logged-in-user be-state nil)))
+        (be-action nil (login-form/on-click-logout nil fe-state) be-state)
+        (is (= nil (login-form/logged-in-key @fe-state)))
+        (is (= nil (state/logged-in-user be-state nil)))))))
 
 (deftest registration-test
   (testing "successful registration"
-    (let [client-state (-> {}
+    (let [be-state (atom {})
+          client-state (-> {}
                            (assoc-val registration-form/username-path "alex")
                            (assoc-val registration-form/password-1-path "password")
                            (assoc-val registration-form/password-2-path "password")
                            (atom))
           request (registration-form/on-click nil client-state)
-          response (be-action nil request (atom {}))]
+          response (be-action nil request be-state)]
       (fe-action nil response client-state)
-      (is (not (contains? @client-state registration-form/state-key))))))
+      (is (not (contains? @client-state registration-form/state-key)))
+      (is (= "alex" (state/logged-in-user be-state nil))))))
 
 (deftest ws-send-test
   (testing "Checking sent msgs"
