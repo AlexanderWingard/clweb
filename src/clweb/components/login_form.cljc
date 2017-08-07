@@ -14,6 +14,7 @@
 (def login-action "login")
 (def logout-action "logout")
 (def login-successful "login-successful")
+(def logout-successful "logout-successful")
 (def state-key :login)
 (def logged-in-key :logged-in)
 (def username-path [state-key :username])
@@ -64,7 +65,8 @@
         (ws-send channel {:action login-successful :user (get-val message username-path)})))))
 
 (defmethod be-action logout-action [channel message state]
-  (state/logout state channel))
+  (state/logout state channel)
+  (ws-send channel {:action logout-successful}))
 
 (defmethod fe-action login-action [channel message state]
   (swap! state assoc state-key (state-key message)))
@@ -72,3 +74,6 @@
 (defmethod fe-action login-successful [channel msg state]
   (swap! state assoc logged-in-key (:user msg))
   (swap! state dissoc state-key))
+
+(defmethod fe-action logout-successful [channel msg state]
+  )

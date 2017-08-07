@@ -46,6 +46,9 @@
       (ws-send msgs "test2")
       (is (= ["test1" "test2"] @msgs)))))
 
+(defn test-interaction [action fe-state be-state]
+  (fe-action nil (be-action nil (action nil fe-state) be-state) fe-state))
+
 (deftest login-test
   (testing "new logintest"
     (let [fe-state (-> {}
@@ -53,28 +56,23 @@
                        (assoc-val login-form/password-path "password")
                        (atom))
           be-state (->  (state/new)
-                        (state/register-user "alexander" "password"))
-          request (login-form/on-click-login nil fe-state)
-          response (be-action nil request be-state)]
-      (fe-action nil response fe-state)
-      (is (= login-form/login-successful (:action response)))
+                        (state/register-user "alexander" "password"))]
+      (test-interaction login-form/on-click-login fe-state be-state)
       (is (nil? (login-form/state-key @fe-state)) "Login form is cleared")
       (is (= "alexander" (state/logged-in-user be-state nil)))
-      (be-action nil (login-form/on-click-logout nil fe-state) be-state)
+      (test-interaction  login-form/on-click-logout fe-state be-state)
       (is (= nil (login-form/logged-in-key @fe-state)))
       (is (= nil (state/logged-in-user be-state nil))))))
 
 (deftest registration-test
   (testing "successful registration"
     (let [be-state (atom {})
-          client-state (-> {}
+          fe-state (-> {}
                            (assoc-val registration-form/username-path "alex")
                            (assoc-val registration-form/password-1-path "password")
                            (assoc-val registration-form/password-2-path "password")
-                           (atom))
-          request (registration-form/on-click nil client-state)
-          response (be-action nil request be-state)]
-      (fe-action nil response client-state)
-      (is (not (contains? @client-state registration-form/state-key)))
+                           (atom))]
+      (test-interaction registration-form/on-click fe-state be-state)
+      (is (not (contains? @fe-state registration-form/state-key)))
       (is (= "alex" (state/logged-in-user be-state nil))))))
 
