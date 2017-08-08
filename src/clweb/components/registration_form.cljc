@@ -65,4 +65,5 @@
 
 (defmethod fe-action registration-successful-msg [channel message state]
   (swap! state assoc :logged-in (:user message))
-  (swap! state dissoc state-key))
+  (swap! state dissoc state-key)
+  #?(:cljs (set! (.-hash (.-location js/window)) "")))
