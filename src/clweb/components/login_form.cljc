@@ -46,12 +46,14 @@
         logged-in (logged-in-key @state)]
     (if (nil? logged-in)
       [:div.ui.segment
+       [:h2.ui.header "Login"]
        [:div.ui.form
         (field :text "Username" state username-path)
         (field :password "Password" state password-path)
         [:button.ui.button {:on-click #(on-click-login channel state) :class (when login-failed "red")} "Login"]
         (when login-failed
-          [:div.ui.left.pointing.red.basic.label "Login failed"])]]
+          [:div.ui.left.pointing.red.basic.label "Login failed"])
+        [:a {:href "#register"} "Register"]]]
       [:div
        (str "Logged in as " logged-in "... ")
        [:button.ui.button {:on-click #(on-click-logout channel state)} "Logout"]])))

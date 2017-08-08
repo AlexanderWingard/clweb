@@ -40,6 +40,7 @@
 
 (defn form [channel state]
   [:div.ui.segment
+   [:h2.ui.header "Register new user"]
    [:div.ui.form
     (field :text "Username" state username-path)
     [:div.two.fields

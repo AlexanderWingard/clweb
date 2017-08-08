@@ -14,7 +14,7 @@
    ))
 (enable-console-print!)
 
-(defonce client-state (atom {}))
+(defonce fe-state (atom {}))
 (register-tag-parser! "object" (fn [arg] (prn-str arg)))
 
 (def ws-uri
@@ -25,7 +25,7 @@
 (defonce channel (js/WebSocket. ws-uri))
 
 (defn ws-handle-message [message]
-  (fe-action channel message client-state))
+  (fe-action channel message fe-state))
 (defn ws-on-message [ws-event]
   (ws-handle-message (reader/read-string (.-data  ws-event))))
 
@@ -33,14 +33,18 @@
 (aset channel "onmessage" ws-on-message)
 (aset channel "onopen" ws-open)
 
-(aset js/window "onhashchange" (fn [] (println (apply hash-map (str/split (subs (.-hash (.-location js/window)) 1) #"/")))))
+(defn hash-change []
+  (swap! fe-state assoc :location (.-hash (.-location js/window))))
+(aset js/window "onhashchange" hash-change)
+(hash-change)
 
 (defn app []
   [:div.ui.container
-   [:h1.ui.header "Charlies Bank"]
-   [login-form/form channel client-state]
-   [registration-form/form channel client-state]
-   [state-debug/form client-state]])
+   [:h1.ui.header  "Charlies Bank"]
+   (case (:location @fe-state)
+     "#register" [registration-form/form channel fe-state]
+     [login-form/form channel fe-state])
+   [state-debug/form fe-state]])
 
 (reagent/render [app] (js/document.getElementById "app"))
 
