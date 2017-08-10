@@ -39,15 +39,17 @@
   (ws-send channel (assoc @state :action action)))
 
 (defn form [channel state]
-  [:div.ui.segment
-   [:h2.ui.header "Register new user"]
-   [:div.ui.form
-    (field :text "Username" state username-path)
-    [:div.two.fields
-     (field :password "Password" state password-1-path)
-     (field :password "Repeat" state password-2-path)]
+  [:div.ui.form
+   [:h2 "Register new user"]
+   (field :text "Username" state username-path)
+   [:div.two.fields
+    (field :password "Password" state password-1-path)
+    (field :password "Repeat" state password-2-path)]
+   [:div {:style {:text-align "center"}}
     [:button.ui.button {:on-click #(on-click channel state)
-                        :class (when (any-errors? @state state-key) "red")} "Register"]]])
+                        :class (when (any-errors? @state state-key) "red")} "Register"]
+    [:br]
+    [:a {:href "#"} "Back to login"]]])
 
 (defmethod be-action action [channel message state]
   (let [checked-state (validate channel message)]

@@ -7,7 +7,10 @@
    [clojure.string :as str]
    [clojure.reader :refer [register-tag-parser!]]
    [reagent.core :as reagent :refer [atom]]
+   [clweb.fe-state :as fes]
    [clweb.components :refer [fe-action]]
+   [clweb.components.login-front-view :as login-front-view]
+   [clweb.components.main-view :as main-view]
    [clweb.components.login-form :as login-form]
    [clweb.components.registration-form :as registration-form]
    [clweb.components.state-debug :as state-debug]
@@ -34,17 +37,18 @@
 (aset channel "onopen" ws-open)
 
 (defn hash-change []
-  (swap! fe-state assoc :location (.-hash (.-location js/window))))
+  (fes/location fe-state (.-hash (.-location js/window))))
 (aset js/window "onhashchange" hash-change)
 (hash-change)
 
 (defn app []
-  [:div.ui.container
-   [:h1.ui.header  "Charlies Bank"]
-   (case (:location @fe-state)
-     "#register" [registration-form/form channel fe-state]
-     [login-form/form channel fe-state])
-   [state-debug/form fe-state]])
+  [:div
+   (cond
+     (fes/location-is fe-state "#register") [login-front-view/dom channel fe-state  [registration-form/form channel fe-state]]
+     (not (fes/logged-in? fe-state)) [login-front-view/dom channel fe-state [login-form/form channel fe-state]]
+     :else [main-view/dom channel fe-state])
+   [state-debug/form fe-state]
+   ])
 
 (reagent/render [app] (js/document.getElementById "app"))
 

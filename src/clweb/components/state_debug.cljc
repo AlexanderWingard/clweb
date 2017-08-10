@@ -18,7 +18,7 @@
    #?(:cljs (edn->hiccup @atom))))
 
 (defn form [client-state]
-  [:div
+  [:div.ui.container
    [:h1.ui.header "Client state"]
    (render-clojure client-state)
    [:h1.ui.header "Full Server state"]

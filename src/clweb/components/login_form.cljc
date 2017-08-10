@@ -9,14 +9,14 @@
               field
               get-val]]
             [clweb.io :refer [ws-send]]
-            [clweb.state :as state]))
+            [clweb.state :as state]
+            [clweb.fe-state :as fes]))
 
 (def login-action "login")
 (def logout-action "logout")
 (def login-successful "login-successful")
 (def logout-successful "logout-successful")
 (def state-key :login)
-(def logged-in-key :logged-in)
 (def username-path [state-key :username])
 (def password-path [state-key :password])
 (def login-failed-path [state-key :login-failed])
@@ -38,25 +38,19 @@
   (ws-send channel (assoc @state :action login-action)))
 
 (defn on-click-logout [channel state]
-  (swap! state dissoc logged-in-key)
+  (fes/logout state)
   (ws-send channel {:action logout-action}))
 
 (defn form [channel state]
-  (let [login-failed (any-errors? @state state-key)
-        logged-in (logged-in-key @state)]
-    (if (nil? logged-in)
-      [:div.ui.segment
-       [:h2.ui.header "Login"]
-       [:div.ui.form
-        (field :text "Username" state username-path)
-        (field :password "Password" state password-path)
-        [:button.ui.button {:on-click #(on-click-login channel state) :class (when login-failed "red")} "Login"]
-        (when login-failed
-          [:div.ui.left.pointing.red.basic.label "Login failed"])
-        [:a {:href "#register"} "Register"]]]
-      [:div
-       (str "Logged in as " logged-in "... ")
-       [:button.ui.button {:on-click #(on-click-logout channel state)} "Logout"]])))
+  (let [login-failed (any-errors? @state state-key)]
+    [:div
+     [:div.ui.form
+      (field :text "Username" state username-path)
+      (field :password "Password" state password-path)
+      [:div {:style {:text-align "center"}}
+       [:button.ui.button {:on-click #(on-click-login channel state) :class (when login-failed "red")} "Login"]
+       [:br]
+       [:a {:href "#register"} "Register new user"]]]]))
 
 (defmethod be-action login-action [channel message state]
   (let [checked-msg (validate message state)]
@@ -74,7 +68,7 @@
   (swap! state assoc state-key (state-key message)))
 
 (defmethod fe-action login-successful [channel msg state]
-  (swap! state assoc logged-in-key (:user msg))
+  (fes/login state (:user msg))
   (swap! state dissoc state-key))
 
 (defmethod fe-action logout-successful [channel msg state]
