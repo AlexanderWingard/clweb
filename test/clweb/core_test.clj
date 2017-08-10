@@ -4,6 +4,7 @@
    [clweb.components :refer :all]
    [clweb.core :refer :all]
    [clweb.io :refer :all]
+   [clweb.fe-state :as fes]
    [clweb.state :as state]
    [clweb.components.registration-form :as registration-form]
    [clweb.components.login-form :as login-form]
@@ -60,8 +61,9 @@
       (test-interaction login-form/on-click-login fe-state be-state)
       (is (nil? (login-form/state-key @fe-state)) "Login form is cleared")
       (is (= "alexander" (state/logged-in-user be-state nil)))
+      (is (= "alexander" (fes/logged-in? fe-state)))
       (test-interaction  login-form/on-click-logout fe-state be-state)
-      (is (= nil (login-form/logged-in-key @fe-state)))
+      (is (= false (fes/logged-in? state)))
       (is (= nil (state/logged-in-user be-state nil))))))
 
 (deftest registration-test
