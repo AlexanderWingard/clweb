@@ -1,4 +1,4 @@
-(ns clweb.state
+(ns clweb.be-state
   (:require [clweb.io :refer [publish-to-all]]
             [clweb.components.state-debug :as state-debug]))
 

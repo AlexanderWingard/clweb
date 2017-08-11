@@ -2,7 +2,7 @@
   (:gen-class)
   (:require [clojure.edn :as edn]
             [clweb.components :as component]
-            [clweb.state :as state]
+            [clweb.be-state :as bes]
             [compojure.core :refer [defroutes GET]]
             [compojure.handler :refer [site]]
             [compojure.route :refer [not-found resources]]
@@ -15,13 +15,13 @@
             [ring.middleware.cljsjs :refer [wrap-cljsjs]]
             [ring.util.response :refer [resource-response]]))
 
-(defonce state (state/new))
+(defonce be-state (bes/new))
 
 (defn ws-handler [req]
   (with-channel req channel
-    (state/assoc-channel state channel)
-    (on-close channel (fn [status] (state/dissoc-channel state channel)))
-    (on-receive channel (fn [string] (component/be-action channel (edn/read-string string) state)))))
+    (bes/assoc-channel be-state channel)
+    (on-close channel (fn [status] (bes/dissoc-channel be-state channel)))
+    (on-receive channel (fn [string] (component/be-action channel (edn/read-string string) be-state)))))
 
 (defroutes my-routes
   (GET "/" [] (resource-response "index.html" {:root "public"}))

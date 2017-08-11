@@ -17,15 +17,15 @@
    {:table.jh-type-object :table.jh-type-object.ui.celled.table}
    #?(:cljs (edn->hiccup @atom))))
 
-(defn form [client-state]
+(defn form [fe-state]
   [:div.ui.container
    [:h1.ui.header "Client state"]
-   (render-clojure client-state)
+   (render-clojure fe-state)
    [:h1.ui.header "Full Server state"]
    (render-clojure full-server-state)])
 
-(defmethod fe-action action [channel message state]
+(defmethod fe-action action [channel message fe-state]
   (reset! full-server-state (:state message)))
 
-(defn create-message [state]
-  {:action action :state state})
+(defn create-message [be-state]
+  {:action action :state be-state})
