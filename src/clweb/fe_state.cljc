@@ -1,4 +1,5 @@
-(ns clweb.fe-state)
+(ns clweb.fe-state
+  #?(:cljs (:require [reagent.core :as reagent :refer [atom]])))
 
 (defn login [state user]
   (swap! state assoc :logged-in user))
@@ -15,3 +16,6 @@
 
 (defn location-is [state loc]
   (= loc (location state)))
+
+(defn new []
+  (atom {}))

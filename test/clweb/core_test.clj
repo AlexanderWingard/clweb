@@ -50,6 +50,13 @@
 (defn test-interaction [action fe-state be-state]
   (fe-action nil (be-action nil (action nil fe-state) be-state) fe-state))
 
+(deftest location-test []
+  (testing "location state"
+    (let [fe-state (fes/new)]
+      (fes/location fe-state "#test")
+      (is (= "#test" (fes/location fe-state)))
+      (is (fes/location-is fe-state "#test")))))
+
 (deftest login-test
   (testing "new logintest"
     (let [fe-state (-> {}
@@ -77,4 +84,3 @@
       (test-interaction registration-form/on-click fe-state be-state)
       (is (not (contains? @fe-state registration-form/state-key)))
       (is (= "alex" (state/logged-in-user be-state nil))))))
-
