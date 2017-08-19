@@ -13,9 +13,11 @@
    [clweb.components.main-view :as main-view]
    [clweb.components.login-form :as login-form]
    [clweb.components.registration-form :as registration-form]
-   [clweb.components.state-debug :as state-debug]
-   ))
+   [clweb.components.state-debug :as state-debug]))
 (enable-console-print!)
+
+(def css-transition-group
+  (reagent/adapt-react-class js/React.addons.CSSTransitionGroup))
 
 (defonce fe-state (atom {}))
 (register-tag-parser! "object" (fn [arg] (prn-str arg)))
@@ -42,13 +44,15 @@
 (hash-change)
 
 (defn app []
-  [:div
-   (cond
-     (fes/location-is fe-state "#register") [login-front-view/dom channel fe-state  [registration-form/form channel fe-state]]
-     (not (fes/logged-in? fe-state)) [login-front-view/dom channel fe-state [login-form/form channel fe-state]]
-     :else [main-view/dom channel fe-state])
-   [state-debug/form fe-state]
-   ])
+  [:div {:style {:position "relative"}}
+   [css-transition-group {:transition-name "foo"
+                          :transition-enter-timeout 1000
+                          :transition-leave-timeout 1000}
+    (cond
+      (fes/location-is fe-state "#register") ^{:key "register"} [login-front-view/dom channel fe-state  [registration-form/form channel fe-state]]
+      (not (fes/logged-in? fe-state))  ^{:key "login"}[login-front-view/dom channel fe-state [login-form/form channel fe-state]]
+      :else [main-view/dom channel fe-state])]
+   [state-debug/form fe-state]])
 
 (reagent/render [app] (js/document.getElementById "app"))
 

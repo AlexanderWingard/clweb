@@ -34,3 +34,15 @@ and (max-width: 736px) {
         font-size: 18px;
     }
 }
+
+.foo-enter {
+    opacity: 0;
+}
+.foo-enter-active {
+    opacity: 1;
+    transition: opacity 500ms ease-in;
+}
+
+.foo-leave {
+    display: none;
+}
