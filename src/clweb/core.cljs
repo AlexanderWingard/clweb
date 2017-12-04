@@ -48,11 +48,22 @@
    [css-transition-group {:transition-name "foo"
                           :transition-enter-timeout 1000
                           :transition-leave-timeout 1000}
-    (cond
-      (fes/location-is fe-state "#register") ^{:key "register"} [login-front-view/dom channel fe-state  [registration-form/form channel fe-state]]
-      (not (fes/logged-in? fe-state))  ^{:key "login"}[login-front-view/dom channel fe-state [login-form/form channel fe-state]]
-      :else [main-view/dom channel fe-state])]
-   [state-debug/form fe-state]])
+    ^{:key (fes/location fe-state)}
+    [:div {:style {:position "absolute" :width "100%"}}
+     (cond
+       (fes/location-is fe-state "#register")
+       [login-front-view/dom channel
+        fe-state
+        [registration-form/form channel fe-state]]
+
+       (not (fes/logged-in? fe-state))
+       [login-front-view/dom channel
+        fe-state
+        [login-form/form channel fe-state]]
+
+       :else [main-view/dom channel fe-state])
+     ;; [state-debug/form fe-state]
+]]])
 
 (reagent/render [app] (js/document.getElementById "app"))
 

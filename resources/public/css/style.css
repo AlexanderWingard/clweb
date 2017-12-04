@@ -35,14 +35,19 @@ and (max-width: 736px) {
     }
 }
 
-.foo-enter {
+.foo-enter, .foo-appear {
     opacity: 0;
 }
-.foo-enter-active {
+.foo-enter-active, .foo-appear-active {
     opacity: 1;
     transition: opacity 500ms ease-in;
 }
 
 .foo-leave {
-    display: none;
+    opacity: 1;
+}
+
+.foo-leave-active {
+    opacity: 0;
+    transition: opacity 500ms ease-in;
 }
