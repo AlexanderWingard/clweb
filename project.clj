@@ -1,8 +1,10 @@
 (defproject clweb "0.1.0-SNAPSHOT"
   :dependencies [
                  [cljsjs/d3 "4.3.0-4"]
+                 [cljsjs/react-with-addons "15.6.1-0"]
                  [cljsjs/semantic-ui "2.2.4-0"]
                  [com.cemerick/piggieback "0.2.1"]
+                 [com.rpl/specter "1.0.5"]
                  [compojure "1.5.0"]
                  [figwheel-sidecar "0.5.11"]
                  [http-kit "2.1.19"]
@@ -10,7 +12,6 @@
                  [org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.9.229"]
                  [reagent "0.7.0" :exclusions [cljsjs/react]]
-                 [cljsjs/react-with-addons "15.6.1-0"]
                  [reagent-forms "0.5.29"]
                  [reagent-utils "0.2.1"]
                  [ring-cljsjs "0.1.0"]

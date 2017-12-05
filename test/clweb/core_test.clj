@@ -1,5 +1,6 @@
 (ns clweb.core-test
   (:require
+   [com.rpl.specter :as s]
    [clojure.test :refer :all]
    [clweb.components :refer :all]
    [clweb.core :refer :all]
@@ -76,10 +77,19 @@
   (testing "successful registration"
     (let [be-state (bes/new)
           fe-state (-> {}
-                           (assoc-val registration-form/username-path "alex")
-                           (assoc-val registration-form/password-1-path "password")
-                           (assoc-val registration-form/password-2-path "password")
-                           (atom))]
+                       (assoc-val registration-form/username-path "alex")
+                       (assoc-val registration-form/password-1-path "password")
+                       (assoc-val registration-form/password-2-path "password")
+                       (atom))]
       (test-interaction registration-form/on-click fe-state be-state)
       (is (not (contains? @fe-state registration-form/state-key)))
+      (is (bes/user-exists? be-state "alex"))
       (is (= "alex" (bes/logged-in-user be-state nil))))))
+
+(deftest specter-test
+  (testing "some specter"
+    (let [data {:db [{:username "alex" :password "apa"} {:username "andrej" :password "gris"}]}]
+      (s/setval [:db s/ALL (s/if-path [:username (s/pred= "alex")] :password)]
+                "gris" data))
+
+    ))
